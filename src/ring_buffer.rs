@@ -40,7 +40,7 @@ impl<T: Copy + Default> RingBuffer<T> {
 
     pub fn get(&self, offset: usize) -> T {
         let ind = (self.head + offset) % self.capacity;
-        self.ringbuff[ind]
+        return self.ringbuff[ind];
     }
 
     // `push` and `pop` write/read and advance the indices.
@@ -82,7 +82,7 @@ impl<T: Copy + Default> RingBuffer<T> {
 
     pub fn capacity(&self) -> usize {
         // Return the length of the internal buffer.
-        self.capacity
+        return self.capacity;
     }
 }
 
