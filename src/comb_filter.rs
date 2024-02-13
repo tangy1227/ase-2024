@@ -1,6 +1,10 @@
 pub struct CombFilter {
     // TODO: your code here
-    // test
+    gain: f32,
+    delay_line: Vec<f32>,
+    filter_type: FilterType,
+    sample_rate_hz: f32,
+    num_channels: usize,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -22,26 +26,65 @@ pub enum Error {
 
 impl CombFilter {
     pub fn new(filter_type: FilterType, max_delay_secs: f32, sample_rate_hz: f32, num_channels: usize) -> Self {
-        todo!("implement")
+        let delay_time = (max_delay_secs * sample_rate_hz) as usize;
+        let delay_line = vec![0.0; delay_time];
+        let gain = 0.5;
+        return CombFilter { gain, delay_line, filter_type, sample_rate_hz, num_channels };
     }
 
     pub fn reset(&mut self) {
-        todo!("implement")
+        for x in &mut self.delay_line {
+            *x = 0.0;
+        }
     }
 
     pub fn process(&mut self, input: &[&[f32]], output: &mut [&mut [f32]]) {
-        todo!("implement");
+        // input/output: 2D array
+
+        for channel in 0..input.len() {
+            // for n = 1:length(x)
+            for sample in 0..input[channel].len() {
+                let input_sample = input[channel][sample];
+                let delayed_sample = self.delay_line[self.delay_line.len() - 1];
+
+                let output_sample = match self.filter_type {
+                    FilterType::FIR => {
+                        let output_sample = input_sample + self.gain * delayed_sample;
+                        self.delay_line.rotate_right(1);
+                        self.delay_line[0] = input_sample;
+                        output_sample
+                    }
+                    FilterType::IIR => {
+                        let output_sample = input_sample + self.gain * delayed_sample;
+                        self.delay_line.rotate_right(1);
+                        self.delay_line[0] = output_sample;
+                        output_sample
+                    }
+                };
+
+                output[channel][sample] = output_sample;        
+            }
+        }   
+
     }
 
     pub fn set_param(&mut self, param: FilterParam, value: f32) -> Result<(), Error> {
-        todo!("implement")
+        match param {
+            FilterParam::Gain => {
+                self.gain = value;
+                Ok(())
+            }
+            FilterParam::Delay => Err(Error::InvalidValue { param, value }),
+        }
     }
 
     pub fn get_param(&self, param: FilterParam) -> f32 {
-        todo!("implement")
+        match param {
+            FilterParam::Gain => self.gain,
+            FilterParam::Delay => 0.0, // Placeholder, as delay is not directly accessible
+        }
     }
 
-    // TODO: feel free to define other functions for your own use
 }
 
-// TODO: feel free to define other types (here or in other modules) for your own use
+
