@@ -38,7 +38,7 @@ impl CombFilter {
         }
     }
 
-    pub fn process(&mut self, input: &[&[f32]], output: &mut [&mut [f32]]) {
+    pub fn process(&mut self, input: &[&[f32]], output: &mut Vec<Vec<f32>>) -> Vec<Vec<f32>> {
         // input/output: 2D array
 
         for channel in 0..input.len() {
@@ -61,11 +61,10 @@ impl CombFilter {
                         output_sample
                     }
                 };
-
-                output[channel][sample] = output_sample;        
+                output[channel][sample] = output_sample;   
             }
-        }   
-
+        }
+        output.clone()
     }
 
     pub fn set_param(&mut self, param: FilterParam, value: f32) -> Result<(), Error> {
@@ -81,7 +80,7 @@ impl CombFilter {
     pub fn get_param(&self, param: FilterParam) -> f32 {
         match param {
             FilterParam::Gain => self.gain,
-            FilterParam::Delay => 0.0, // Placeholder, as delay is not directly accessible
+            FilterParam::Delay => 0.0,
         }
     }
 
