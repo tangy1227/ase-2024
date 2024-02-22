@@ -13,6 +13,14 @@ impl<T: Copy + Default> RingBuffer<T> {
         }
     }
 
+    /// reset the ringbuffer and the index
+    ///
+    /// # Example
+    /// ```
+    /// let ringbuff = RingBuffer::new(10);
+    /// ringbuff.reset();
+    /// ```
+
     pub fn reset(&mut self) {
         self.buffer.fill(T::default());
         self.head = 0;
