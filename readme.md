@@ -1,6 +1,15 @@
-# Difference Plot
-## Difference for `sweep.wav` at delay time 0.5 and gain 0.5
-![0.5delay](./fig/0.5delay.jpg)
+# Difference Plot 
 
-## Difference for `sweep.wav` at delay time 0.01 and gain 0.5
-![0.01delay](./fig/0.01delay.jpg)
+## FIR
+### Difference for `sweep.wav` at delay time 0.5 and gain 0.5
+<img src="./fig/fir-0.5delay.jpg" alt="0.5delay" width="80%">
+
+### Difference for `sweep.wav` at delay time 0.01 and gain 0.5
+<img src="./fig/fir-0.01delay.jpg" alt="0.5delay" width="80%">
+
+## IIR
+### Difference for `sweep.wav` at delay time 0.5 and gain 0.5
+<img src="./fig/iir-0.5delay.jpg" alt="0.5delay" width="80%">
+
+### Difference for `sweep.wav` at delay time 0.01 and gain 0.5
+<img src="./fig/iir-0.01delay.jpg" alt="0.5delay" width="80%">
