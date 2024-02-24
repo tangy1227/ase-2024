@@ -20,7 +20,6 @@ impl<T: Copy + Default> RingBuffer<T> {
     /// let ringbuff = RingBuffer::new(10);
     /// ringbuff.reset();
     /// ```
-
     pub fn reset(&mut self) {
         self.buffer.fill(T::default());
         self.head = 0;
@@ -87,13 +86,35 @@ impl RingBuffer<f32> {
     // Return the value at at an offset from the current read index.
     // To handle fractional offsets, linearly interpolate between adjacent values. 
     pub fn get_frac(&self, offset: f32) -> f32 {
-        todo!("implement")
+        let index = self.tail as f32 + offset;
+        let rounded = index.floor() as usize;
+        let frac = index - rounded as f32;
+
+        let idx1 = rounded % self.capacity();
+        let idx2 = (rounded + 1) % self.capacity();
+
+        let value1 = self.buffer[idx1];
+        let value2 = self.buffer[idx2];        
+        value1 * (1.0 - frac) + frac * value2
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_get_frac_exact_offset() {
+        let mut ring_buffer = RingBuffer::new(5);
+        for i in 1..6 {
+            ring_buffer.push(i as f32);
+        }
+
+        assert_eq!(ring_buffer.get_frac(2.0), 3.0);
+        assert_eq!(ring_buffer.get_frac(4.0), 5.0);
+        assert_eq!(ring_buffer.get_frac(3.5), 4.5);
+        assert_eq!(ring_buffer.get_frac(2.2), 3.2);
+    }
 
     #[test]
     fn test_wrapping() {
