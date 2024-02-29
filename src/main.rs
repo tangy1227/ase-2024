@@ -5,7 +5,7 @@ use std::{f32::consts::PI, ops::DerefMut};
 mod ring_buffer;
 mod vibrato;
 mod lfo;
-pub mod LFO;
+// pub mod LFO;
 use vibrato::Vibrato;
 
 fn show_info() {
