@@ -25,6 +25,7 @@ impl Lfo {
 #[cfg(test)]
 mod tests {
     use super::*;
+
     #[test]
     fn test() {
     // Example usage
@@ -32,13 +33,12 @@ mod tests {
     let sample = 1;    // Set the sample value
     let amplitude = 0.8; // Set the amplitude
 
-    // Create a new SinusoidalLFO instance
     let lfo = Lfo::new(frequency, sample, amplitude);
-
-    // Generate the LFO value
     let lfo_value = lfo.generate();
-
-    // Print or use the generated LFO value
-    println!("LFO Value: {}", lfo_value);
+    
+    let amplitude_gt = 0.8;
+    let frequency_gt = 1.0;
+    let gt = amplitude_gt * (frequency_gt * 2.0 * PI).sin();
+    assert_eq!(lfo_value, gt);
     }
 }

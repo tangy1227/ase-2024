@@ -83,8 +83,10 @@ impl Vibrato {
 #[cfg(test)]
 mod tests {
     use super::*;
+    
     #[test]
     fn test() {
+        // This test is for comparing the output to matlab code with the same sinusoid input
         let freq = 10.0;
         let amplitude = 1.0;
         let duration = 0.1;
