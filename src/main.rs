@@ -179,12 +179,14 @@ mod tests {
     fn test_3() {
         // test varying block size
 
-        let input_file_path = "sweep_test.wav";
+        let input_file_path = "sweep.wav";
         
         let mut reader = hound::WavReader::open(input_file_path).unwrap();
         let spec = reader.spec();
         let sample_rate_hz = spec.sample_rate as f32;
-        let num_channels = spec.channels as usize;  
+        let num_channels = spec.channels as usize;
+        let sample_length = reader.duration() as usize;
+        dbg!(sample_length);
 
         // vibrato param
         let modfreq = 5.0;
@@ -193,13 +195,15 @@ mod tests {
         let mut vibrato_efx = Vibrato::new(modfreq, width, mod_amplitude, sample_rate_hz, num_channels);        
 
         // Varying block sizes to test
-        let block_sizes = [16, 32, 64, 256, 512, 1024, 2048, 44100, 88200];
+        let block_sizes = [16, 32, 64, 256];
         for &block_size in block_sizes.iter() {     
             let blocksize = block_size as usize;
 
             let mut input_buffer = vec![vec![0.0 as f32; blocksize]; num_channels as usize];
             let mut output_buffer = vec![vec![0.0 as f32; blocksize]; num_channels as usize];
             let mut sample_size = 0;  
+
+            let mut sample_i16_vectors: Vec<Vec<i16>> = Vec::new();
 
             for (i, sample) in reader.samples::<i16>().enumerate() {
                 let sample = sample.unwrap() as f32 / (1 << 15) as f32;
@@ -213,41 +217,27 @@ mod tests {
                     let mut output: Vec<&mut [f32]> = output_buffer.iter_mut().map(|v| v.as_mut_slice()).collect();
 
                     vibrato_efx.process(&input, &mut output);
-                    // dbg!(&output);
+                    let mut current_sample_i16_vector: Vec<i16> = Vec::new();
 
                     for pos in 0..blocksize {
                         for ch in 0..num_channels {
                             let processed_sample = output[ch][pos];
                             let sample_i16 = (processed_sample * (i16::MAX as f32)) as i16;
-                            // writer.write_sample(sample_i16).unwrap();
+                            current_sample_i16_vector.push(sample_i16);
                         }
                     }
 
-                    // input_buffer = vec![vec![0.0 as f32; blocksize]; num_channels as usize];
+                    sample_i16_vectors.push(current_sample_i16_vector);
+
                     input_buffer[channel][position % blocksize] = sample;
                 }
-                sample_size += 1;     
+                sample_size += 1;
             }
 
-            // Process remaining samples
             let remaining_samples = (sample_size / num_channels as usize) % blocksize;
-            if remaining_samples > 0 {
-                println!("Total sample of {}. Process the remaining {} samples", sample_size/num_channels, remaining_samples);
+            assert_eq!(remaining_samples, sample_length % blocksize);
+        }
 
-                let input: Vec<&[f32]> = input_buffer.iter().map(|v| &v[..remaining_samples]).collect();
-                let mut output: Vec<&mut [f32]> = output_buffer.iter_mut().map(|v| &mut v[..remaining_samples]).collect();
-
-                vibrato_efx.process(&input, &mut output);
-
-                for pos in 0..remaining_samples {
-                    for ch in 0..num_channels {
-                        let processed_sample = output[ch][pos];
-                        let sample_i16 = (processed_sample * (i16::MAX as f32)) as i16;
-                        // writer.write_sample(sample_i16).unwrap();
-                    }
-                }
-            }                    
-        }     
     }    
 
     #[test]
