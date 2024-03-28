@@ -48,6 +48,15 @@ where
             // This is the callback in the audio thread!
             // TODO: Receive messages from the main thread to change synthesis parameters.
             // (Hint: `rx.try_recv()`.)
+
+            while let Ok(message) = rx.try_recv() {
+                match message {
+                    Message::SetFrequency { frequency } => {
+                        oscillator.frequency = frequency;
+                    }
+                }
+            }
+
             process_frame(output, &mut oscillator, num_channels)
         },
         err_fn,
@@ -60,6 +69,7 @@ where
 // Messages to control the audio thread.
 enum Message {
     SetFrequency { frequency: f32 },
+    // SetGain { gain: f32 },
 }
 
 fn main() -> anyhow::Result<()> {
@@ -77,6 +87,12 @@ fn main() -> anyhow::Result<()> {
         // TODO: Parse user input and send messages to the audio thread to control the output.
         // First, try letting the user change the oscillator frequency.
         // Then come up with some other messages to send!
+        
+        if let Ok(frequency) = line.parse::<f32>() {
+            let message = Message::SetFrequency { frequency };
+            tx.send(message).expect("Failed to send message to audio thread");
+        }
+                
     }
     Ok(())
 }
